@@ -15,6 +15,7 @@ import { lightTheme, darkTheme } from "./styles";
 import SignUp from "./screens/SignUp";
 import routes from "./routes";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+import Start from "./screens/Start";
 //import NotFound from "./screens/NotFound";
 
 function App() {
@@ -26,16 +27,8 @@ function App() {
         <GlobalStyles />
         <Router>
           <Switch>
-            <Route path={routes.home} exact>
-              {isLoggedIn ? <Home /> : <Login />}
-            </Route>
-            {!isLoggedIn ? (
-              <Route path={routes.SignUp}>
-                <SignUp />
-              </Route>
-            ) : null}
-            <Route>
-              <Redirect to="/"></Redirect>
+            <Route path={routes.start} exact>
+              <Start></Start>
             </Route>
           </Switch>
         </Router>

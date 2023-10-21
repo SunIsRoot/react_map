@@ -2,14 +2,15 @@ import styled from "styled-components";
 
 const Input = styled.input`
   width: 100%;
-  padding: 7px;
+  padding: 20px;
   background-color: #fafafa;
-  border: 0.5px solid ${(props) => props.theme.borderColor};
-  border-radius: 3px;
+  border: 1px solid ${(props) => props.theme.borderColor};
+  border-radius: 10px;
   margin-top: 5px;
   box-sizing: border-box;
+  box-shadow: 1px 1px rgb(0, 0, 0, 0.3);
   &::placeholder {
-    font-size: 12px;
+    font-size: 16px;
   }
 `;
 
