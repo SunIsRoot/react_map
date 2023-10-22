@@ -1,17 +1,18 @@
 import { func } from "prop-types";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 
 const MakeMap = () => {
+  const searchPlacesRef = useRef(null);
+
   useEffect(() => {
     const script = document.createElement("script");
     script.async = true;
     script.src =
-      "//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=54eff128245ec2f72922dc9c921fd8c1";
+      "//dapi.kakao.com/v2/maps/sdk.js?appkey=54eff128245ec2f72922dc9c921fd8c1&libraries=services,clusterer,drawing&autoload=false";
     document.head.appendChild(script);
 
-    const { kakao } = window;
-
     script.onload = () => {
+      const { kakao } = window;
       kakao.maps.load(() => {
         var container = document.getElementById("map");
         var options = {
@@ -25,11 +26,9 @@ const MakeMap = () => {
         // 장소 검색 객체 생성
         var ps = new kakao.maps.services.Places();
         // 검색 결과 목록이나 마커를 클릭했을 때 장소명 표출 인포 윈도우 생성
-        var infowindow = new kakao.maps.infowindow({ zIndex: 2 });
-        // 키워드로 장소 검색
-        searchPlaces();
+        var infowindow = new kakao.maps.InfoWindow({ zIndex: 2 });
         // 키워드 검색 요청 함수
-        function searchPlaces() {
+        searchPlacesRef.current = function searchPlaces() {
           var keyword = document.getElementById("keyword").value;
 
           if (!keyword.replace(/^\s+|\s+$/g, "")) {
@@ -38,7 +37,7 @@ const MakeMap = () => {
           }
           //장소 검색 객체를 통해 키워드로 장소검색 요청
           ps.keywordSearch(keyword, placesSearchCB);
-        }
+        };
         //장소 검색 완료 시 호출되는 콜백함수
         function placesSearchCB(data, status, pagination) {
           if (status === kakao.maps.services.Status.OK) {
@@ -49,12 +48,12 @@ const MakeMap = () => {
           } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
             alert("검색 결과가 존재하지 않습니다.");
             return;
-          } else if (status === kakao.maps.services.ERROR) {
+          } else if (status === kakao.maps.services.Status.ERROR) {
             alert("검색 결과 중 오류가 발생했습니다.");
             return;
           }
         }
-        // 검색 결과 목록과 마커를 표출하는 함수
+        // 검색 결과 목록과 마커를 표출하는 함수입니다
         function displayPlaces(places) {
           var listEl = document.getElementById("placesList"),
             menuEl = document.getElementById("menu_wrap"),
@@ -239,9 +238,38 @@ const MakeMap = () => {
     };
   }, []);
 
+  const handleFormSubmit = useCallback((e) => {
+    e.preventDefault();
+    if (searchPlacesRef.current) {
+      searchPlacesRef.current();
+    }
+  }, []);
+
   return (
-    <div>
-      <div id="map" style={{ width: "393px", height: "853px" }}></div>
+    <div class="map_wrap">
+      <div
+        id="map"
+        style={{
+          width: "393px",
+          height: "853px",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      ></div>
+      <div id="menu_wrap" className="bg_white">
+        <div className="option">
+          <div>
+            <form onSubmit={handleFormSubmit}>
+              키워드 :{" "}
+              <input type="text" value="인하대" id="keyword" size="15" />
+              <button type="submit">검색하기</button>
+            </form>
+          </div>
+        </div>
+        <hr></hr>
+        <ul id="placesList"></ul>
+        <div id="pagination"></div>
+      </div>
     </div>
   );
 };
